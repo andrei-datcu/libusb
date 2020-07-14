@@ -414,13 +414,13 @@ static void op_exit(struct libusb_context *ctx)
 
 static int linux_scan_devices(struct libusb_context *ctx)
 {
-	int ret;
+	int ret = 0;
 
 	usbi_mutex_static_lock(&linux_hotplug_lock);
 
 #if defined(HAVE_LIBUDEV)
 	ret = linux_udev_scan_devices(ctx);
-#else
+#elif !defined(__ANDROID__)
 	ret = linux_default_scan_devices(ctx);
 #endif
 
@@ -431,7 +431,9 @@ static int linux_scan_devices(struct libusb_context *ctx)
 
 static void op_hotplug_poll(void)
 {
+#if !defined(__ANDROID__)
 	linux_hotplug_poll();
+#endif
 }
 
 static int open_sysfs_attr(struct libusb_context *ctx,
